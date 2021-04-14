@@ -1,41 +1,42 @@
 //============================================================================
 // Name        : SystemCTest.cpp
-// Author      : 
+// Author      :
 // Version     :
 // Copyright   : Your copyright notice
 // Description : Hello World in C++, Ansi-style
 //============================================================================
 
-#include "stdio.h"
 #include <systemc.h>
-#include "config.h"
+
 #include "TimeCalcModule.h"
+#include "config.h"
+#include "stdio.h"
 
 using namespace std;
 
 class ConsoleOut
 {
-public:
-  ConsoleOut(size_t& tick):tick(tick){}
-  template<typename... Args>
-  void print(const char* pattern, Args&&... args)
-  {
-    printf("t - %d: ", tick);
-    printf(pattern, args...);
-    puts("");
-  }
-private:
-  size_t& tick;
+  public:
+    ConsoleOut(size_t &tick) : tick(tick)
+    {
+    }
+    template <typename... Args> void print(const char *pattern, Args &&...args)
+    {
+        printf("t - %d: ", tick);
+        printf(pattern, args...);
+        puts("");
+    }
+
+  private:
+    size_t &tick;
 };
 
-
-int sc_main(int, char**) {
-
+int sc_main(int, char **)
+{
     sc_signal<bool> clk;
     sc_signal<bool> reset;
     sc_signal<uint8_t> coin;
     sc_signal<int> timeMinutesOut;
-
 
     TimeCalcModule timeCalc("TimeCalc");
     timeCalc.clk(clk);
@@ -50,7 +51,7 @@ int sc_main(int, char**) {
     sc_time tickHalfTime{1, SC_MS};
     size_t tick = 0;
     ConsoleOut console{tick};
-    auto incrementTick = [&]{
+    auto incrementTick = [&] {
         clk = true;
         sc_start(tickHalfTime);
         ++tick;
