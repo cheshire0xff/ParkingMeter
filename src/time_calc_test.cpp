@@ -37,10 +37,12 @@ int sc_main(int, char**)
 
     constexpr auto insertCounter = 2U;
     auto accTest = 0U;
+    bool ok = true;
     auto testSum = [&] {
         accTest += TimeCalcModule::coinToMinutes(coin.read()) * insertCounter;
         if (accTest != timeMinutesOut.read())
         {
+            ok = false;
             DefaultLogger{}.error("Invalid sum! Got %d, extected %d", timeMinutesOut.read(), accTest);
         }
     };
@@ -64,5 +66,29 @@ int sc_main(int, char**)
     testSum();
     insertCoins(TimeCalcModule::five_pln);
     testSum();
+    accTest = 0;
+    reset = true;
+    incrementTick();
+    console.print("reset");
+    reset = false;
+    insertCoins(TimeCalcModule::none);
+    testSum();
+    insertCoins(TimeCalcModule::fifty_gr);
+    testSum();
+    insertCoins(TimeCalcModule::one_pln);
+    testSum();
+    insertCoins(TimeCalcModule::two_pln);
+    testSum();
+    insertCoins(TimeCalcModule::five_pln);
+    testSum();
+    if (ok)
+    {
+        DefaultLogger{}.info("Tests ok!");
+    }
+    else
+    {
+
+        DefaultLogger{}.error("Tests ok!");
+    }
     return 0;
 }

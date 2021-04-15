@@ -80,15 +80,22 @@ class TimeCalcModule : ::sc_core::sc_module
         auto logger = DefaultLogger{};
         logger.debug("calculate trg");
         logger.debug("clk: %d", clk.read());
-        auto val = coin.read();
-        if (val <= CoinT::five_pln)
+        if (reset.read())
         {
-            accumulatedTime += coinToMinutes(val);
+            accumulatedTime = 0;
         }
         else
         {
-            // error
-            logger.error("invalid coin: %d", coin.read());
+            auto val = coin.read();
+            if (val <= CoinT::five_pln)
+            {
+                accumulatedTime += coinToMinutes(val);
+            }
+            else
+            {
+                // error
+                logger.error("invalid coin: %d", coin.read());
+            }
         }
         timeMinutes = accumulatedTime;
     }
