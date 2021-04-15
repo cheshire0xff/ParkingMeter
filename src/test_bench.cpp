@@ -1,15 +1,6 @@
-//============================================================================
-// Name        : SystemCTest.cpp
-// Author      :
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
-
 #include <systemc.h>
 
 #include "TimeCalcModule.h"
-#include "config.h"
 #include "stdio.h"
 
 using namespace std;
@@ -20,7 +11,8 @@ class ConsoleOut
     ConsoleOut(size_t &tick) : tick(tick)
     {
     }
-    template <typename... Args> void print(const char *pattern, Args &&...args)
+    template <typename... Args>
+    void print(const char *pattern, Args &&...args)
     {
         printf("t - %d: ", tick);
         printf(pattern, args...);

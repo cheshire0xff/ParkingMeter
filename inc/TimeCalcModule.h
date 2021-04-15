@@ -41,7 +41,7 @@ class TimeCalcModule : ::sc_core::sc_module
     uint accumulatedTime = 0;
     void calculate()
     {
-        auto logger = Logger{};
+        auto logger = DefaultLogger{};
         logger.logDebug("calculate trg");
         logger.logDebug("clk: %d", clk.read());
         switch (coin.read())
@@ -62,6 +62,7 @@ class TimeCalcModule : ::sc_core::sc_module
             break;
         default:
             // error
+            logger.logError("invalid coin: %d", coin.read());
             break;
         }
         timeMinutes = accumulatedTime;

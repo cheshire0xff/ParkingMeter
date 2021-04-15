@@ -7,23 +7,51 @@
 
 #ifndef INC_LOGGER_H_
 #define INC_LOGGER_H_
+#include "Config.h"
 #include "stdio.h"
 
+template <bool enable>
 struct Logger
 {
-    template <typename... Args> void logDebug(const char *pattern, Args &&...args)
+};
+using DefaultLogger = Logger<Config::logsEnabled>;
+
+template<>
+struct Logger<false>
+{
+    template <typename... Args>
+    void logDebug(const char *pattern, Args &&...args)
+    {
+    }
+    template <typename... Args>
+    void logInfo(const char *pattern, Args &&...args)
+    {
+    }
+    template <typename... Args>
+    void logError(const char *pattern, Args &&...args)
+    {
+    }
+};
+
+template<>
+struct Logger<true>
+{
+    template <typename... Args>
+    void logDebug(const char *pattern, Args &&...args)
     {
         printf("Dbg: ");
         printf(pattern, args...);
         printf("\n");
     }
-    template <typename... Args> void logInfo(const char *pattern, Args &&...args)
+    template <typename... Args>
+    void logInfo(const char *pattern, Args &&...args)
     {
         printf("Inf: ");
         printf(pattern, args...);
         printf("\n");
     }
-    template <typename... Args> void logError(const char *pattern, Args &&...args)
+    template <typename... Args>
+    void logError(const char *pattern, Args &&...args)
     {
         printf("Error: ");
         printf(pattern, args...);
