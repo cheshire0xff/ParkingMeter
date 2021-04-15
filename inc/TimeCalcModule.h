@@ -12,6 +12,8 @@
 #include <cstdint>
 #include <systemc.h>
 
+// todo error handling
+
 class TimeCalcModule : ::sc_core::sc_module
 {
   public:
@@ -36,34 +38,57 @@ class TimeCalcModule : ::sc_core::sc_module
         two_pln = 3,
         five_pln = 4
     };
+    static const char* coinToString(uint8_t coin)
+    {
+        switch (coin)
+        {
+        case TimeCalcModule::none:
+            return "none";
+        case TimeCalcModule::fifty_gr:
+            return "50gr";
+        case TimeCalcModule::one_pln:
+            return "1pln";
+        case TimeCalcModule::two_pln:
+            return "2pln";
+        case TimeCalcModule::five_pln:
+            return "5pln";
+        }
+        return "invalid";
+    }
+    static const uint coinToMinutes(uint8_t coin)
+    {
+        switch (coin)
+        {
+        case TimeCalcModule::none:
+            return 0;
+        case TimeCalcModule::fifty_gr:
+            return 15;
+        case TimeCalcModule::one_pln:
+            return 30;
+        case TimeCalcModule::two_pln:
+            return 60;
+        case TimeCalcModule::five_pln:
+            return 180;
+        }
+        return 0;
+    }
 
   private:
     uint accumulatedTime = 0;
     void calculate()
     {
         auto logger = DefaultLogger{};
-        logger.logDebug("calculate trg");
-        logger.logDebug("clk: %d", clk.read());
-        switch (coin.read())
+        logger.debug("calculate trg");
+        logger.debug("clk: %d", clk.read());
+        auto val = coin.read();
+        if (val <= CoinT::five_pln)
         {
-        case CoinT::none:
-            break;
-        case CoinT::fifty_gr:
-            accumulatedTime += 15;
-            break;
-        case CoinT::one_pln:
-            accumulatedTime += 30;
-            break;
-        case CoinT::two_pln:
-            accumulatedTime += 60;
-            break;
-        case CoinT::five_pln:
-            accumulatedTime += 180;
-            break;
-        default:
+            accumulatedTime += coinToMinutes(val);
+        }
+        else
+        {
             // error
-            logger.logError("invalid coin: %d", coin.read());
-            break;
+            logger.error("invalid coin: %d", coin.read());
         }
         timeMinutes = accumulatedTime;
     }

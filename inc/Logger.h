@@ -16,42 +16,42 @@ struct Logger
 };
 using DefaultLogger = Logger<Config::logsEnabled>;
 
-template<>
+template <>
 struct Logger<false>
 {
     template <typename... Args>
-    void logDebug(const char *pattern, Args &&...args)
+    void debug(const char* pattern, Args&&... args)
     {
     }
     template <typename... Args>
-    void logInfo(const char *pattern, Args &&...args)
+    void info(const char* pattern, Args&&... args)
     {
     }
     template <typename... Args>
-    void logError(const char *pattern, Args &&...args)
+    void error(const char* pattern, Args&&... args)
     {
     }
 };
 
-template<>
+template <>
 struct Logger<true>
 {
     template <typename... Args>
-    void logDebug(const char *pattern, Args &&...args)
+    void debug(const char* pattern, Args&&... args)
     {
         printf("Dbg: ");
         printf(pattern, args...);
         printf("\n");
     }
     template <typename... Args>
-    void logInfo(const char *pattern, Args &&...args)
+    void info(const char* pattern, Args&&... args)
     {
         printf("Inf: ");
         printf(pattern, args...);
         printf("\n");
     }
     template <typename... Args>
-    void logError(const char *pattern, Args &&...args)
+    void error(const char* pattern, Args&&... args)
     {
         printf("Error: ");
         printf(pattern, args...);

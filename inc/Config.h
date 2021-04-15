@@ -16,7 +16,6 @@ constexpr auto logsEnabled = false;
 constexpr auto logsEnabled = true;
 #endif
 
-}
-
+} // namespace Config
 
 #endif /* INC_CONFIG_H_ */
