@@ -55,7 +55,7 @@ class TimeCalcModule : ::sc_core::sc_module
         }
         return "invalid";
     }
-    static const uint coinToMinutes(uint8_t coin)
+    static const unsigned int coinToMinutes(uint8_t coin)
     {
         switch (coin)
         {
@@ -74,7 +74,7 @@ class TimeCalcModule : ::sc_core::sc_module
     }
 
   private:
-    uint accumulatedTime = 0;
+    unsigned int accumulatedTime = 0;
     void calculate()
     {
         auto logger = DefaultLogger{};

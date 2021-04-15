@@ -48,8 +48,8 @@ int sc_main(int, char**)
         coin = coinVal;
         for (auto i = 0U; i < insertCounter; ++i)
         {
+            console.print("coin inserted: %s", TimeCalcModule::coinToString(coinVal));
             incrementTick();
-            console.print("coin inserted: %s", TimeCalcModule::coinToString(coin.read()));
             console.print("accTime: %d minutes.", timeMinutesOut.read());
         }
     };
