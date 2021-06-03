@@ -38,8 +38,8 @@ int sc_main(int, char**)
     sc_start(tickHalfTime);
 
     bool ok = true;
-    auto testSum = [&] (unsigned int minutes){
-        if (minutes!= timeMinutesOut.read())
+    auto testSum = [&](unsigned int minutes) {
+        if (minutes != timeMinutesOut.read())
         {
             ok = false;
             DefaultLogger{}.error("Invalid sum! Got %d, extected %d", timeMinutesOut.read(), minutes);

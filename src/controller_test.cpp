@@ -7,7 +7,7 @@
 #include "Logger.h"
 #include "TimeCalcModule.h"
 #include "Utils.h"
-#include "atomic"
+#include <atomic>
 #include <thread>
 
 using namespace std;
