@@ -14,7 +14,9 @@
 #include <stdio.h>
 #include <systemc.h>
 
-// todo error handling
+/*
+ * Coordinates operations between other modules
+ */
 
 class ControllerModule : ::sc_core::sc_module
 {

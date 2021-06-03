@@ -14,7 +14,9 @@
 #include <stdio.h>
 #include <systemc.h>
 
-// todo error handling
+/*
+ * simple display to stdout module
+ */
 
 class DisplayModule : ::sc_core::sc_module
 {

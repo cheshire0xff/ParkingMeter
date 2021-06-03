@@ -13,7 +13,9 @@
 #include <cstdint>
 #include <systemc.h>
 
-// todo error handling
+/*
+ * checks if uint8_t entered value is recognized value
+ */
 
 class InputValidationModule : ::sc_core::sc_module
 {

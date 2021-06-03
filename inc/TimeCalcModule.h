@@ -13,7 +13,11 @@
 #include <cstdint>
 #include <systemc.h>
 
-// todo error handling
+/*
+ * calculates how many minutes you get
+ * from amount of coins you put
+ * (5x1pln is equivalent to 1x5pln etc.)
+ */
 
 class TimeCalcModule : ::sc_core::sc_module
 {
