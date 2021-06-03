@@ -13,12 +13,14 @@ int sc_main(int, char**)
     sc_signal<bool> reset;
     sc_signal<uint8_t> coin;
     sc_signal<int> timeMinutesOut;
+    sc_signal<int> accumulatedGr;
 
     TimeCalcModule timeCalc("TimeCalc");
     timeCalc.clk(clk);
     timeCalc.reset(reset);
     timeCalc.coin(coin);
     timeCalc.timeMinutes(timeMinutesOut);
+    timeCalc.accumulatedGr(accumulatedGr);
 
     clk = false;
     reset = false;
@@ -35,52 +37,53 @@ int sc_main(int, char**)
     };
     sc_start(tickHalfTime);
 
-    constexpr auto insertCounter = 2U;
-    auto accTest = 0U;
     bool ok = true;
-    auto testSum = [&] {
-        accTest += TimeCalcModule::coinToMinutes(coin.read()) * insertCounter;
-        if (accTest != timeMinutesOut.read())
+    auto testSum = [&] (unsigned int minutes){
+        if (minutes!= timeMinutesOut.read())
         {
             ok = false;
-            DefaultLogger{}.error("Invalid sum! Got %d, extected %d", timeMinutesOut.read(), accTest);
+            DefaultLogger{}.error("Invalid sum! Got %d, extected %d", timeMinutesOut.read(), minutes);
         }
     };
-    auto insertCoins = [&](uint8_t coinVal) {
+    auto insertCoins = [&](uint8_t coinVal, unsigned int insertCounter) {
         coin = coinVal;
         for (auto i = 0U; i < insertCounter; ++i)
         {
-            console.print("coin inserted: %s", TimeCalcModule::coinToString(coinVal));
+            console.print("coin inserted: %s (x%d)", Defs::coinToString(coinVal), insertCounter);
             incrementTick();
             console.print("accTime: %d minutes.", timeMinutesOut.read());
+            console.print("total paid: %d.%d pln", accumulatedGr.read() / 100, accumulatedGr.read() % 100);
         }
     };
 
-    insertCoins(TimeCalcModule::none);
-    testSum();
-    insertCoins(TimeCalcModule::fifty_gr);
-    testSum();
-    insertCoins(TimeCalcModule::one_pln);
-    testSum();
-    insertCoins(TimeCalcModule::two_pln);
-    testSum();
-    insertCoins(TimeCalcModule::five_pln);
-    testSum();
-    accTest = 0;
+    insertCoins(Defs::none, 2);
+    testSum(0);
+    insertCoins(Defs::fifty_gr, 2);
+    testSum(30);
+    insertCoins(Defs::one_pln, 3);
+    testSum(120);
+    insertCoins(Defs::two_pln, 1);
+    testSum(210);
+    insertCoins(Defs::five_pln, 4);
+    testSum(930);
     reset = true;
     incrementTick();
     console.print("reset");
     reset = false;
-    insertCoins(TimeCalcModule::none);
-    testSum();
-    insertCoins(TimeCalcModule::fifty_gr);
-    testSum();
-    insertCoins(TimeCalcModule::one_pln);
-    testSum();
-    insertCoins(TimeCalcModule::two_pln);
-    testSum();
-    insertCoins(TimeCalcModule::five_pln);
-    testSum();
+    insertCoins(Defs::five_pln, 2);
+    testSum(360);
+    insertCoins(Defs::two_pln, 1);
+    testSum(420);
+    insertCoins(Defs::one_pln, 5);
+    testSum(600);
+    insertCoins(Defs::fifty_gr, 1);
+    testSum(615);
+    insertCoins(Defs::none, 3);
+    testSum(615);
+    insertCoins(Defs::five_pln, 2);
+    testSum(975);
+    insertCoins(Defs::five_pln, 1);
+    testSum(1155);
     if (ok)
     {
         DefaultLogger{}.info("Tests ok!");

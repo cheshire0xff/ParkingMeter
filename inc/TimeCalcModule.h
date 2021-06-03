@@ -8,6 +8,7 @@
 #ifndef INC_TIMECALCMODULE_H_
 #define INC_TIMECALCMODULE_H_
 
+#include "Defs.h"
 #include "Logger.h"
 #include <cstdint>
 #include <systemc.h>
@@ -22,59 +23,43 @@ class TimeCalcModule : ::sc_core::sc_module
     sc_in<uint8_t> coin;
 
     sc_out<int> timeMinutes;
+    sc_out<int> accumulatedGr;
     TimeCalcModule(sc_core::sc_module_name)
     {
         sc_core::sc_process_handle calculate_handle = sc_core::sc_get_curr_simcontext()->create_method_process(
             "calculate", false, static_cast<sc_core::SC_ENTRY_FUNC>(&TimeCalcModule::calculate), this, nullptr);
+        sensitive_pos << calculate_handle;
+        sensitive_neg << calculate_handle;
         sensitive << calculate_handle;
         sensitive << clk.pos();
     }
 
-    enum CoinT : uint8_t
-    {
-        none = 0,
-        fifty_gr = 1,
-        one_pln = 2,
-        two_pln = 3,
-        five_pln = 4
-    };
-    static const char* coinToString(uint8_t coin)
-    {
-        switch (coin)
-        {
-        case TimeCalcModule::none:
-            return "none";
-        case TimeCalcModule::fifty_gr:
-            return "50gr";
-        case TimeCalcModule::one_pln:
-            return "1pln";
-        case TimeCalcModule::two_pln:
-            return "2pln";
-        case TimeCalcModule::five_pln:
-            return "5pln";
-        }
-        return "invalid";
-    }
-    static const unsigned int coinToMinutes(uint8_t coin)
-    {
-        switch (coin)
-        {
-        case TimeCalcModule::none:
-            return 0;
-        case TimeCalcModule::fifty_gr:
-            return 15;
-        case TimeCalcModule::one_pln:
-            return 30;
-        case TimeCalcModule::two_pln:
-            return 60;
-        case TimeCalcModule::five_pln:
-            return 180;
-        }
-        return 0;
-    }
-
   private:
-    unsigned int accumulatedTime = 0;
+    unsigned int accumulatedGrRegister = 0;
+    unsigned int getTimeMinutes()
+    {
+        auto accumulatedTime = 0U;
+        auto accumulatedGrTemp = accumulatedGrRegister;
+        auto logger = DefaultLogger{};
+        for (auto coin = Defs::five_pln; coin >= Defs::fifty_gr; coin = static_cast<Defs::InputValues>(coin - 1))
+        {
+            auto grPerCoin = Defs::coinToGr(coin);
+            auto coinCount = accumulatedGrTemp / grPerCoin;
+            logger.debug("%s , count: %d", Defs::coinToString(coin), coinCount);
+            if (coinCount)
+            {
+                auto minPerCoin = Defs::coinToMinutes(coin);
+                accumulatedTime += minPerCoin * coinCount;
+                // remove money already converted to minutes from loop
+                accumulatedGrTemp -= coinCount * grPerCoin;
+            }
+        }
+        if (accumulatedGrTemp)
+        {
+            DefaultLogger{}.error("Calculation error: remaining gr: %d", accumulatedGrTemp);
+        }
+        return accumulatedTime;
+    }
     void calculate()
     {
         auto logger = DefaultLogger{};
@@ -82,14 +67,14 @@ class TimeCalcModule : ::sc_core::sc_module
         logger.debug("clk: %d", clk.read());
         if (reset.read())
         {
-            accumulatedTime = 0;
+            accumulatedGrRegister = 0;
         }
         else
         {
             auto val = coin.read();
-            if (val <= CoinT::five_pln)
+            if (val <= Defs::five_pln)
             {
-                accumulatedTime += coinToMinutes(val);
+                accumulatedGrRegister += Defs::coinToGr(static_cast<Defs::InputValues>(val));
             }
             else
             {
@@ -97,7 +82,8 @@ class TimeCalcModule : ::sc_core::sc_module
                 logger.error("invalid coin: %d", coin.read());
             }
         }
-        timeMinutes = accumulatedTime;
+        accumulatedGr = accumulatedGrRegister;
+        timeMinutes = getTimeMinutes();
     }
 };
 
